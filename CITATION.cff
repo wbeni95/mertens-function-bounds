@@ -1,0 +1,37 @@
+cff-version: 1.2.0
+message: "If you use these bounds, data or verifiers, please cite them as below."
+type: dataset
+title: "Certified bounds for the Mertens function: lim sup M(x)/sqrt(x) > 1.92036 and lim inf M(x)/sqrt(x) < -1.92053"
+authors:
+  - family-names: Weisz
+    given-names: Benjamin
+repository-code: "https://github.com/wbeni95/mertens-function-bounds"
+license:
+  - CC-BY-4.0
+  - Apache-2.0
+version: "1.0.0"
+date-released: "2026-10-11"
+keywords:
+  - Mertens function
+  - Mertens conjecture
+  - Riemann zeta function
+  - certified computation
+  - ball arithmetic
+abstract: >-
+  A self-contained, independently checkable proof that lim sup M(x)/sqrt(x) > 1.9203693129093421 and
+  lim inf M(x)/sqrt(x) < -1.9205369736317600, improving the bounds of Hurst (2018) on both sides. Ingham's theorem is
+  applied at two explicit points; the finite sum over the first 14 400 zeta zeros is evaluated in ball arithmetic.
+  Includes two verifiers based on different software, the zero data, and timestamped evidence of a timed run.
+references:
+  - type: article
+    authors:
+      - family-names: Hurst
+        given-names: Greg
+    title: "Computations of the Mertens function and improved bounds on the Mertens conjecture"
+    journal: "Mathematics of Computation"
+    volume: 87
+    issue: 310
+    start: 1013
+    end: 1028
+    year: 2018
+    doi: "10.1090/mcom/3275"

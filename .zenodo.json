@@ -1,0 +1,23 @@
+{
+  "title": "Certified bounds for the Mertens function: lim sup M(x)/sqrt(x) > 1.92036 and lim inf M(x)/sqrt(x) < -1.92053",
+  "upload_type": "dataset",
+  "description": "<p>A self-contained, independently checkable proof that lim sup M(x)/&radic;x &gt; 1.9203693129093421 and lim inf M(x)/&radic;x &lt; &minus;1.9205369736317600, where M(x) is the Mertens function. This improves the best previously published bounds, 1.826054 and &minus;1.837625 (G. Hurst, Math. Comp. 2018), on both sides.</p><p>The proof applies Ingham's theorem (in the form of Odlyzko and te Riele 1985) at two explicit points, evaluating the required finite sum over the first 14 400 zeros of the Riemann zeta function in ball arithmetic. The package contains the statement and proof, the two points, the zero data with rigorous radii, two verifiers based on different software (FLINT/Arb and mpmath interval arithmetic), a zero-data regenerator and a validation guide. A timed run on a fresh challenge from the drand public randomness beacon, with RFC 3161 and OpenTimestamps timestamps, documents the time from an unpredictable challenge to a certified bound. The search procedure that found the points is not included and is not needed for verification.</p><p>Nearly all of the code, computations and documentation were produced by an AI system (Claude, by Anthropic) under the direction of Benjamin Weisz, who is responsible for the content. An independent referee, also an AI agent, re-derived the computation; the work has not yet been peer reviewed. Data and documentation are licensed CC BY 4.0; code is licensed Apache-2.0.</p>",
+  "creators": [
+    {"name": "Weisz, Benjamin"}
+  ],
+  "license": "cc-by-4.0",
+  "keywords": [
+    "Mertens function",
+    "Mertens conjecture",
+    "Riemann zeta function",
+    "analytic number theory",
+    "certified computation",
+    "ball arithmetic",
+    "reproducibility"
+  ],
+  "related_identifiers": [
+    {"identifier": "https://github.com/wbeni95/mertens-function-bounds", "relation": "isSupplementTo", "scheme": "url"},
+    {"identifier": "10.1090/mcom/3275", "relation": "references", "scheme": "doi"},
+    {"identifier": "10.1515/crll.1985.357.138", "relation": "references", "scheme": "doi"}
+  ]
+}
