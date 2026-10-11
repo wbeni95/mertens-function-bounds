@@ -1,5 +1,7 @@
 # Certified bounds for the Mertens function: lim sup M(x)/√x > 1.92036 and lim inf M(x)/√x < −1.92053
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.23298194.svg)](https://doi.org/10.5281/zenodo.23298194)
+
 Let M(x) = Σ_{n≤x} μ(n) be the Mertens function. This repository proves
 
 > **lim sup_{x→∞} M(x)/√x > 1.9203693129093421   and   lim inf_{x→∞} M(x)/√x < −1.9205369736317600,**
@@ -105,4 +107,4 @@ This work is directed by Benjamin Weisz, who sets its goals, decides on publicat
 
 ## Licence and citation
 
-Code (verify/ and timing/*.py) under the Apache License 2.0, data and documentation under CC BY 4.0, third-party timing files under their issuers' terms: see [NOTICE](NOTICE). Please cite the Zenodo record of the release you use (its DOI is shown on the repository's release page), or the metadata in [CITATION.cff](CITATION.cff). Improved bounds, if any, will be released as new Zenodo versions of this record.
+Code (verify/ and timing/*.py) under the Apache License 2.0, data and documentation under CC BY 4.0, third-party timing files under their issuers' terms: see [NOTICE](NOTICE). Please cite the Zenodo record: [doi:10.5281/zenodo.23298194](https://doi.org/10.5281/zenodo.23298194) for all versions, or [doi:10.5281/zenodo.23298195](https://doi.org/10.5281/zenodo.23298195) for version 1.0.0; the metadata is also in [CITATION.cff](CITATION.cff). Improved bounds, if any, will be released as new Zenodo versions of this record.
