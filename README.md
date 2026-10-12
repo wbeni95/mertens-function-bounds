@@ -105,6 +105,8 @@ This work is directed by Benjamin Weisz, who sets its goals, decides on publicat
 - the same claims are verified a second time with different software, mpmath interval arithmetic without FLINT (`verify/verify_bound_mpmath.py`);
 - two independent referee passes re-derived the computation with separate code, checked the zero data against Odlyzko's published table, checked the theorem and its hypotheses against Odlyzko–te Riele (1985) and Hurst (2018) (Ingham (1942) was not accessible to them), and re-checked the timing evidence. The referees were AI agents, not human reviewers; this work has not yet been peer reviewed.
 
+**Review status.** Unless a result is published in a peer-reviewed venue, its proofs have been checked only by the verification scripts and by AI agents; no human has reviewed them, and the owner does not count himself as a reviewer.
+
 ## Licence and citation
 
 Code (verify/ and timing/*.py) under the Apache License 2.0, data and documentation under CC BY 4.0, third-party timing files under their issuers' terms: see [NOTICE](NOTICE). Please cite the Zenodo record: [doi:10.5281/zenodo.23298194](https://doi.org/10.5281/zenodo.23298194) for all versions, or [doi:10.5281/zenodo.23298195](https://doi.org/10.5281/zenodo.23298195) for version 1.0.0; the metadata is also in [CITATION.cff](CITATION.cff). Improved bounds, if any, will be released as new Zenodo versions of this record.
