@@ -85,4 +85,4 @@ This work is directed by Benjamin Weisz, who sets its goals, decides on publicat
 
 ## Licence and citation
 
-Code (verify/) under the Apache License 2.0; data and documentation under CC BY 4.0: see [NOTICE](NOTICE). Please cite the Zenodo record: [doi:10.5281/zenodo.23298194](https://doi.org/10.5281/zenodo.23298194) for all versions; the metadata is also in [CITATION.cff](CITATION.cff).
+Code (verify/) under the Apache License 2.0; data and documentation under CC BY 4.0: see [NOTICE](NOTICE). Please cite the Zenodo record: [doi:10.5281/zenodo.23298194](https://doi.org/10.5281/zenodo.23298194) for all versions, or [doi:10.5281/zenodo.23651459](https://doi.org/10.5281/zenodo.23651459) for version 2.0.0; the metadata is also in [CITATION.cff](CITATION.cff).
