@@ -1,23 +1,26 @@
-"""Independent regeneration / spot-check of the zero data used by verify_bound.py.
+"""Independent regeneration / spot check of the zero data used by verify_bound.py and verify_bound_mpmath.py.
 
-For the i-th zero rho_i = 1/2 + i gamma_i of zeta (i = 1..14400) it computes, with Arb (python-flint) at 16384 bits,
-gamma_i and c_i = 1/(rho_i zeta'(rho_i)) as balls, and compares them with ../data/zeta_zeros_14400.npz:
+For the i-th zero rho_i = 1/2 + i gamma_i of zeta (i = 1..14400, ordered by height) it computes with FLINT/Arb (python-flint)
+at 33300 bits gamma_i and c_i = 1/(rho_i zeta'(rho_i)) as balls, and compares them with ../data/zeta_zeros_14400.npz:
 the stored ball (decimal midpoint, radius + one unit in the last printed digit) must CONTAIN the freshly computed midpoint,
 and the two balls must overlap.
+Zeros are located by acb.zeta_zeros (FLINT/Arb: rigorous isolation of the n-th zero on the critical line, with the zero count
+verified by Turing's method); zeta'(rho) is the first Taylor coefficient of zeta at the zero ball.
 
 Usage:
   python regenerate_zeros.py sample K [seed]   check K zeros at random indices (and always i = 1 and i = 14400)
   python regenerate_zeros.py range i0 i1       check the zeros with index i0..i1 (inclusive)
-  python regenerate_zeros.py full out.npz      regenerate the whole data set (long: roughly 10 CPU-hours at 16384 bits)
-Zeros are located by acb.zeta_zeros (FLINT/Arb: rigorous isolation of the n-th zero on the critical line)."""
+  python regenerate_zeros.py full out.npz      regenerate the whole data set (long: about 7-17 s per zero at this precision,
+                                               i.e. on the order of two CPU-days in total; indices can be split across runs
+                                               with 'range' for checking)"""
 import os, random, sys
 
 import numpy as np
 from flint import acb, acb_series, arb, ctx
 
 sys.set_int_max_str_digits(0)
-BITS = 16384
-DIG = int(BITS * 0.30103) - 5
+BITS = 33300
+GAMMA_DIGITS = 9860       # significant digits written for gamma in 'full' mode (as in the shipped file)
 
 
 def compute(n0, count):
@@ -25,7 +28,7 @@ def compute(n0, count):
     zs = acb.zeta_zeros(n0, count)
     out = []
     for z in zs:
-        zp = acb_series([z, 1], prec=2).zeta()[1]
+        zp = acb_series([z, 1], prec=2).zeta().coeffs()[1]
         c = 1 / (z * zp)
         out.append((z.imag, c))
     return out
@@ -38,7 +41,7 @@ def dec_ulp(s):
 
 def stored_ball(mid, rad):
     mid, rad = str(mid), str(rad)
-    return arb(mid, rad) + arb(0, dec_ulp(mid))
+    return arb(mid) + arb(0, arb(rad).upper()) + arb(0, arb(dec_ulp(mid)).upper())
 
 
 def check(indices, z):
@@ -56,9 +59,10 @@ def check(indices, z):
 
 
 if __name__ == "__main__":
-    mode = sys.argv[1]
+    mode = sys.argv[1] if len(sys.argv) > 1 else ""
     if mode in ("sample", "range"):
-        z = np.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "zeta_zeros_14400.npz"))
+        z = np.load(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data", "zeta_zeros_14400.npz"),
+                    allow_pickle=False)
         if mode == "sample":
             k = int(sys.argv[2]); rng = random.Random(int(sys.argv[3]) if len(sys.argv) > 3 else 1)
             idx = sorted(set([1, 14400] + rng.sample(range(2, 14400), k)))
@@ -69,7 +73,7 @@ if __name__ == "__main__":
         rows = []
         for n0 in range(1, 14401, 100):
             for g, c in compute(n0, min(100, 14401 - n0)):
-                rows.append((g.mid().str(DIG, radius=False), g.rad().str(6, radius=False), c.real.mid().str(60, radius=False),
+                rows.append((g.mid().str(GAMMA_DIGITS, radius=False), g.rad().str(6, radius=False), c.real.mid().str(60, radius=False),
                              c.imag.mid().str(60, radius=False), c.real.rad().str(6, radius=False), c.imag.rad().str(6, radius=False)))
             print(f"{len(rows)} zeros", flush=True)
         np.savez_compressed(sys.argv[2], gamma=np.array([r[0] for r in rows]), gamma_rad=np.array([r[1] for r in rows]),

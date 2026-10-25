@@ -1,6 +1,0 @@
-{
- "purpose": "inputs fixed before the beacon: hash of the private code bundle and of the zero data",
- "code_bundle_sha256": "bf3bf06394d1b8c82177a12031ee923f8c133dab82c0b2de6df0ffbab5c57a63",
- "data_sha256": "6657a917f45d32a6a90e91a4141c0fc555e61dcd384718247ee25c9ae8ab668e",
- "created_utc": "2026-10-11T10:00:37Z"
-}

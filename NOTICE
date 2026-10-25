@@ -1,15 +1,11 @@
 Certified bounds on M(x)/sqrt(x)
 Copyright 2026 Benjamin Weisz
 
-Code (verify/*.py and timing/*.py) is licensed under the Apache License, Version 2.0: see LICENSE.
+Code (verify/*.py) is licensed under the Apache License, Version 2.0: see LICENSE.
 
-Data and documentation (data/, points/, results/, timing/commit.json, timing/certificate.json, README.md,
-THEOREM.md, VALIDATION_GUIDE.md, CITATION.cff, .zenodo.json, SHA256SUMS.txt) are licensed under the Creative Commons Attribution 4.0 International license:
+Data and documentation (data/, points/, results/, README.md, THEOREM.md, VALIDATION_GUIDE.md, CITATION.cff,
+.zenodo.json, SHA256SUMS.txt) are licensed under the Creative Commons Attribution 4.0 International license:
 see LICENSE-DATA.
 
-Third-party files, included unmodified under their issuers' terms (not under the licences above):
-- timing/ca/freetsa_cacert.pem: root certificate of the FreeTSA time-stamping authority (https://freetsa.org).
-- timing/ca/digicert_root_g4.pem: DigiCert Trusted Root G4 certificate (https://www.digicert.com).
-- timing/*.tsr: RFC 3161 time-stamp tokens issued by FreeTSA and DigiCert.
-- timing/*.ots: OpenTimestamps proofs containing attestations from public OpenTimestamps calendar servers.
-- timing/beacon.json: a drand mainnet beacon round, as published by the League of Entropy (https://drand.love).
+Version 1.0.0 (git tag v1.0.0) also contains third-party timing files (time-stamp tokens, CA certificates,
+OpenTimestamps proofs, a drand beacon round), included there unmodified under their issuers' terms.

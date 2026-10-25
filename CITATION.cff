@@ -1,7 +1,7 @@
 cff-version: 1.2.0
 message: "If you use these bounds, data or verifiers, please cite them as below."
 type: dataset
-title: "Certified bounds for the Mertens function: lim sup M(x)/sqrt(x) > 1.92036 and lim inf M(x)/sqrt(x) < -1.92053"
+title: "Certified bounds for the Mertens function: lim sup M(x)/sqrt(x) > 2.06175 and lim inf M(x)/sqrt(x) < -2.06471"
 authors:
   - family-names: Weisz
     given-names: Benjamin
@@ -13,12 +13,12 @@ identifiers:
     description: "Concept DOI: all versions (cite this unless you need a specific version)"
   - type: doi
     value: "10.5281/zenodo.23298195"
-    description: "Version 1.0.0"
+    description: "Version 1.0.0 (superseded)"
 license:
   - CC-BY-4.0
   - Apache-2.0
-version: "1.0.0"
-date-released: "2026-10-11"
+version: "2.0.0"
+date-released: "2026-10-25"
 keywords:
   - Mertens function
   - Mertens conjecture
@@ -26,10 +26,11 @@ keywords:
   - certified computation
   - ball arithmetic
 abstract: >-
-  A self-contained, independently checkable proof that lim sup M(x)/sqrt(x) > 1.9203693129093421 and
-  lim inf M(x)/sqrt(x) < -1.9205369736317600, improving the bounds of Hurst (2018) on both sides. Ingham's theorem is
-  applied at two explicit points; the finite sum over the first 14 400 zeta zeros is evaluated in ball arithmetic.
-  Includes two verifiers based on different software, the zero data, and timestamped evidence of a timed run.
+  A self-contained, independently checkable proof that lim sup M(x)/sqrt(x) > 2.0617536514585282 and
+  lim inf M(x)/sqrt(x) < -2.0647155435291726, improving the bounds of Hurst (2018) on both sides. Since both bounds
+  exceed 2, |M(x)| <= 2 sqrt(x) fails for arbitrarily large x. Ingham's theorem is applied at two explicit points; the
+  finite sum over the first 14 400 zeta zeros is evaluated in ball arithmetic. Includes two verifiers based on different
+  libraries and the zero data.
 references:
   - type: article
     authors:
@@ -43,3 +44,10 @@ references:
     end: 1028
     year: 2018
     doi: "10.1090/mcom/3275"
+  - type: article
+    authors:
+      - family-names: Pintz
+        given-names: János
+    title: "Oscillation of partial sums of the Möbius function and zeros of Riemann's zeta function"
+    year: 2026
+    url: "https://arxiv.org/abs/2608.24878"

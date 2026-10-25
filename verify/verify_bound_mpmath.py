@@ -1,103 +1,93 @@
-"""Independent verification of the bounds in THEOREM.md with mpmath interval arithmetic (no FLINT/Arb).
+"""Second, independent rigorous verification of THEOREM.md with a different library: mpmath interval arithmetic (mpmath.iv).
 
-This evaluates the same function as verify_bound.py, with different software, so that the result does not rest on the
-library that produced the zero data:
-
-    h(y, N) = 2 * sum_{i=1}^{N} f(gamma_i / gamma_N) * Re( c_i * exp(i * gamma_i * y) ),
-    f(t)    = (1 - t) cos(pi t) + sin(pi t) / pi,
-
-for N = 14400 at the points in ../points/, in mpmath.iv at 16600 bits. Every input is an interval: each stored decimal
-midpoint is widened by its stored radius plus one unit in its last printed digit (the ball rule of data/README.md).
-The final comparison with the claimed threshold is exact (rational endpoints).
-
-Usage:   python verify_bound_mpmath.py            (both points; about 15 minutes per point in pure-Python mpmath)
-         python verify_bound_mpmath.py plus|minus
-Output:  verify/output/mpmath_<point>.json; prints the enclosure and whether each requested claim holds.
-Requirements: Python 3.11+, numpy (to read the .npz file), mpmath 1.3+.
-The rigour rests on mpmath.iv's outward-rounded interval operations."""
+Same quantity as verify_bound.py (no code shared with it):
+    h(y) = 2 * sum_{i=1}^{N} f(gamma_i / T) * Re( c_i * exp(i * gamma_i * y) ),   N = 14400,  T = gamma_N,
+    f(t) = (1 - t) cos(pi t) + sin(pi t) / pi,   c_i = 1/(rho_i zeta'(rho_i)).
+Inputs are intervals: stored decimal midpoint +- (stored radius + one unit in the last printed digit).  The phase gamma_i*y is
+formed with ~9900-digit interval arithmetic and taken modulo 2*pi by subtracting an exact integer multiple of 2*pi; that phase and the
+rest of each term are then evaluated in 100-digit interval arithmetic (outward rounding throughout).
+mpmath.iv is pure Python; if gmpy2 is installed mpmath uses it automatically and runs faster.
+Usage:  python verify_bound_mpmath.py [plus|minus]
+Requirements: Python 3.11+, numpy, mpmath >= 1.3."""
 import json, os, sys, time
-from fractions import Fraction
 
 import numpy as np
 from mpmath import iv, mp
-from mpmath.libmp import to_str
 
 sys.set_int_max_str_digits(0)
 HERE = os.path.dirname(os.path.abspath(__file__))
 PKG = os.path.dirname(HERE)
-PREC = 16600
 N = 14400
-CLAIMS = {"plus": ("lower", "1.9203693129093421"), "minus": ("upper", "-1.9205369736317600")}
+D_LO = 100
+CLAIMS = {"plus": ("lower", "2.0617536514585282"), "minus": ("upper", "-2.0647155435291726")}
 
 
-def dec_to_fraction(s):
-    """Exact rational value of a decimal string such as '-12.345e-6'."""
+def ulp_str(s):
     s = s.strip().lower()
     mant, _, ex = s.partition("e")
-    e = int(ex) if ex else 0
-    neg = mant.startswith("-")
-    ip, _, fp = mant.lstrip("+-").partition(".")
-    v = Fraction(int((ip or "0") + fp)) * Fraction(10) ** (e - len(fp))
-    return -v if neg else v
+    return f"1e{(int(ex) if ex else 0) - len(mant.partition('.')[2])}"
 
 
-def ulp_exp(s):
-    """Exponent k such that one unit in the last printed digit of the decimal string s is 10^k."""
-    s = s.strip().lower()
-    mant, _, ex = s.partition("e")
-    return (int(ex) if ex else 0) - len(mant.partition(".")[2])
+def interval(mid, rad):
+    """[mid - r, mid + r] with r an upper bound of (stored radius + one unit in the last printed digit)."""
+    mid, rad = str(mid), str(rad)
+    radius = iv.mpf(rad) + iv.mpf(ulp_str(mid))                 # an interval whose upper end bounds the radius
+    return iv.mpf(mid) + iv.mpf([-1, 1]) * radius              # = mid + [-radius.b, radius.b] (outward rounded)
 
 
-def ball(mid, rad):
-    """Interval [mid - (rad + u), mid + (rad + u)], u = one unit in the last printed digit, rounded outward."""
-    e = (iv.mpf(rad) + iv.mpf("1e%d" % ulp_exp(mid))).b
-    return iv.mpf(mid) + iv.mpf([-e, e])
-
-
-def mpf_to_fraction(x):
-    sign, man, exp, bc = x
-    if bc < 0:
-        raise ValueError("non-finite interval endpoint")
-    v = Fraction(man) * Fraction(2) ** exp if exp >= 0 else Fraction(man, 1 << (-exp))
-    return -v if sign else v
+def h_value(y_str, z):
+    int_digits = len(y_str.strip().lstrip("-").split(".")[0])
+    gam_s = [str(s) for s in z["gamma"][:N]]
+    d_hi = max(int_digits + 130, max(len(s) for s in gam_s) + 20)
+    iv.dps = d_hi; mp.dps = d_hi
+    y = iv.mpf(y_str)
+    twopi = 2 * iv.pi
+    twopi_mid = 2 * mp.pi
+    T = interval(gam_s[N - 1], z["gamma_rad"][N - 1])
+    tot = iv.mpf(0)
+    for i in range(N):
+        iv.dps = d_hi; mp.dps = d_hi
+        g = interval(gam_s[i], z["gamma_rad"][i])
+        th = g * y
+        k = int(mp.floor(mp.mpf(th.mid) / twopi_mid))       # an exact integer (any integer would do)
+        red = th - k * twopi
+        u = g / T
+        iv.dps = D_LO                                        # operations below take the narrow intervals red, u exactly and
+        pi = iv.pi                                           # round their results outward to D_LO digits
+        f = (1 - u) * iv.cos(pi * u) + iv.sin(pi * u) / pi
+        c_re = interval(z["c_re"][i], z["c_re_rad"][i]); c_im = interval(z["c_im"][i], z["c_im_rad"][i])
+        tot = tot + 2 * f * (c_re * iv.cos(red) - c_im * iv.sin(red))
+        if i % 2000 == 0:
+            print(f"  term {i}/{N}", flush=True)
+    return tot, d_hi
 
 
 def main():
     which = sys.argv[1:] or ["plus", "minus"]
-    iv.prec = PREC
     z = np.load(os.path.join(PKG, "data", "zeta_zeros_14400.npz"), allow_pickle=False)
-    D = {k: [str(s) for s in z[k]] for k in ["gamma", "gamma_rad", "c_re", "c_im", "c_re_rad", "c_im_rad"]}
-    G = [ball(D["gamma"][i], D["gamma_rad"][i]) for i in range(N)]
-    CR = [ball(D["c_re"][i], D["c_re_rad"][i]) for i in range(N)]
-    CI = [ball(D["c_im"][i], D["c_im_rad"][i]) for i in range(N)]
-    GN, PI = G[N - 1], iv.pi
-    results = {}
+    ok_all = True
     for w in which:
+        y_str = open(os.path.join(PKG, "points", f"y_{w}.txt")).read().strip()
         t0 = time.time()
-        Y = iv.mpf(open(os.path.join(PKG, "points", f"y_{w}.txt")).read().strip())
-        tot = iv.mpf(0)
-        for i in range(N):
-            t = G[i] / GN
-            f = (1 - t) * iv.cos(PI * t) + iv.sin(PI * t) / PI
-            th = G[i] * Y
-            tot = tot + 2 * f * (CR[i] * iv.cos(th) - CI[i] * iv.sin(th))
-        a, b = tot._mpi_
-        A, B = mpf_to_fraction(a), mpf_to_fraction(b)
+        h, d_hi = h_value(y_str, z)
+        iv.dps = D_LO
         kind, claim = CLAIMS[w]
-        ok = (A > dec_to_fraction(claim)) if kind == "lower" else (B < dec_to_fraction(claim))
-        mp.prec = 400
-        rec = {"point": w, "N": N, "precision_bits": PREC, "terms": N, "interval_cos_sin_calls": 4 * N,
-               "lower": to_str(a, 60), "upper": to_str(b, 60),
-               "radius": mp.nstr(mp.mpf((B - A).numerator) / (B - A).denominator / 2, 3),
-               "claim": f"h(y_{w}, {N}) {'>' if kind == 'lower' else '<'} {claim}", "claim_holds": bool(ok),
-               "seconds": round(time.time() - t0, 1)}
-        results[w] = rec
-        print(json.dumps(rec, indent=1))
+        c = iv.mpf(claim)
+        try:                                   # mpmath.iv: True/False if decided for the whole interval, ValueError if overlapping
+            ok = bool(h > c) if kind == "lower" else bool(h < c)
+        except ValueError:
+            ok = False
+        ok_all &= ok
+        mp.dps = D_LO + 10                     # endpoints have D_LO-digit precision: exact conversion, printing only
+        rec = {"point": w, "library": "mpmath.iv", "digits_phase": d_hi, "digits_terms": D_LO,
+               "h_lower": mp.nstr(mp.mpf(h.a), 60), "h_upper": mp.nstr(mp.mpf(h.b), 60), "h_width": mp.nstr(mp.mpf(h.b) - mp.mpf(h.a), 3),
+               "claim": f"h(y_{w}) {'>' if kind == 'lower' else '<'} {claim}", "claim_verified": ok}
+        print(json.dumps(rec, indent=1)); print(f"({time.time() - t0:.1f} s)", flush=True)
         os.makedirs(os.path.join(HERE, "output"), exist_ok=True)
-        json.dump(rec, open(os.path.join(HERE, "output", f"mpmath_{w}.json"), "w", newline="\n"), indent=1)
-    if not all(r["claim_holds"] for r in results.values()):
+        json.dump(rec, open(os.path.join(HERE, "output", f"certificate_mpmath_{w}.json"), "w"), indent=1)
+    if not ok_all:
         print("CLAIM NOT VERIFIED"); sys.exit(1)
-    print("verified with mpmath.iv: " + ", ".join(results))
+    print("all claims verified")
 
 
 if __name__ == "__main__":
